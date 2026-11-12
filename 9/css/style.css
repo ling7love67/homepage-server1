@@ -1,0 +1,230 @@
+/* 全站共用样式：首页与详情页都引用这一份 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Microsoft Yahei", sans-serif;
+    background-color: #f4f6f8;
+}
+
+header {
+    background-color: #205b94;
+    color: #fff;
+    padding: 16px;
+    text-align: center;
+}
+
+nav {
+    background-color: #3674b9;
+    padding: 10px 16px;
+}
+
+nav a {
+    display: inline-block;
+    color: white;
+    text-decoration: none;
+    padding: 6px 14px;
+    margin-right: 8px;
+    background: #5494d8;
+    border-radius: 4px;
+}
+
+nav a:hover {
+    background: #73adee;
+}
+
+main {
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+footer {
+    background-color: #205b94;
+    color: #fff;
+    text-align: center;
+    padding: 12px;
+    margin-top: 30px;
+}
+
+/* ---------- 首页 ---------- */
+
+.tab-buttons {
+    margin-bottom: 16px;
+}
+
+.tab-btn {
+    padding: 7px 16px;
+    border: none;
+    background: #e2e8f0;
+    cursor: pointer;
+    font-size: 15px;
+    margin-right: 6px;
+}
+
+.tab-btn.active {
+    background: #205b94;
+    color: white;
+}
+
+/* 首页一次只显示一个 section，详情页不受影响 */
+body.page-home section {
+    display: none;
+}
+
+body.page-home section.show {
+    display: block;
+}
+
+body.page-home section h3 {
+    margin-bottom: 12px;
+    color: #205b94;
+}
+
+.skill-list {
+    padding-left: 20px;
+}
+
+/* 首页由 fetch 渲染出来的项目列表 */
+.project-list {
+    list-style: none;
+    margin: 12px 0;
+    padding: 0;
+}
+
+.project-list li {
+    border-left: 3px solid #5494d8;
+    background: #f4f6f8;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.project-list strong {
+    color: #205b94;
+    margin-right: 8px;
+}
+
+.project-list span {
+    color: #555;
+}
+
+.project-list em {
+    display: block;
+    margin-top: 4px;
+    font-style: normal;
+    font-size: 13px;
+    color: #888;
+}
+
+.project-list .loading,
+.project-list .error {
+    border-left-color: #ccc;
+    color: #888;
+}
+
+/* ---------- 详情页 ---------- */
+
+.add-area {
+    margin-bottom: 16px;
+}
+
+#taskInput {
+    padding: 6px;
+    width: 70%;
+}
+
+button {
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+.task-item {
+    margin: 8px 0;
+}
+
+.task-item input[type="checkbox"] {
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.task-item.done .task-text {
+    text-decoration: line-through;
+    color: #888;
+}
+
+/* ---------- 404 页面 ---------- */
+
+.not-found {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.not-found .error-code {
+    font-size: 96px;
+    line-height: 1;
+    font-weight: bold;
+    color: #205b94;
+}
+
+.not-found h3 {
+    margin: 16px 0 8px;
+    color: #205b94;
+}
+
+.not-found p {
+    margin: 8px 0;
+    color: #555;
+}
+
+.not-found code {
+    background: #eef3f8;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #205b94;
+    word-break: break-all;
+}
+
+.back-home {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 8px 18px;
+    background: #205b94;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.back-home:hover {
+    background: #3674b9;
+}
+
+/* ---------- 手机适配 375px ---------- */
+
+@media (max-width: 375px) {
+    nav a {
+        display: block;
+        width: 100%;
+        margin: 4px 0;
+        text-align: center;
+    }
+
+    .tab-btn {
+        width: 100%;
+        margin: 4px 0;
+    }
+
+    #taskInput {
+        width: 60%;
+    }
+}

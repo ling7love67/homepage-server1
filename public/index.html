@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <!-- 响应式：375px 手机宽度不出现横向滚动 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>项目列表 · 前后端联调</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <div>
+        <h1>我的项目列表</h1>
+        <p class="sub">任务3 · 前后端联调：数据全部来自接口，不写死在 JS 数组里</p>
+      </div>
+      <a class="link" href="/api/list" target="_blank" rel="noreferrer">查看接口数据 ↗</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="panel">
+      <h2>新增项目</h2>
+      <form id="addForm" class="add-form" autocomplete="off">
+        <label class="field">
+          <span>项目名称</span>
+          <input id="title" name="title" maxlength="60" placeholder="例如：校园闲置交易平台" required />
+        </label>
+        <label class="field">
+          <span>项目描述</span>
+          <input id="desc" name="desc" maxlength="100" placeholder="一句话说明（选填）" />
+        </label>
+        <button type="submit" id="addBtn" class="btn btn-primary">新增</button>
+      </form>
+      <p id="formTip" class="form-tip" role="alert" hidden></p>
+    </section>
+
+    <section class="panel">
+      <div class="list-head">
+        <h2>项目列表</h2>
+        <div class="list-tools">
+          <span id="count" class="count"></span>
+          <button type="button" id="refreshBtn" class="btn btn-ghost">刷新</button>
+        </div>
+      </div>
+
+      <!-- 三种状态都渲染在这个容器里 -->
+      <div id="list" class="list" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>前端实训作业 · 数据存储：本地 JSON 文件（关闭服务后数据保留）</p>
+    </div>
+  </footer>
+
+  <!-- 后端地址单独放配置里，业务代码不写死 -->
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

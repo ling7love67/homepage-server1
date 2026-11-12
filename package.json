@@ -1,6 +1,18 @@
 {
+  "name": "homepage-server1",
+  "version": "1.0.0",
+  "private": true,
+  "description": "前端实训：个人主页 + 项目列表，Node.js + Express 接口服务，本地 JSON 落盘",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
-    "cors": "^2.8.6",
-    "express": "^5.3.0"
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
   }
 }

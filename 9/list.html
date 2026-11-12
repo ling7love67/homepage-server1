@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目列表 · 前后端联调</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 列表页专用样式，公共部分沿用 css/style.css */
+        .hint {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.7;
+            margin: 8px 0 14px;
+        }
+
+        .hint code {
+            background: #eef3f8;
+            color: #205b94;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .add-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .add-form input {
+            padding: 8px;
+            border: 1px solid #ccd5de;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        #titleInput {
+            flex: 1 1 200px;
+        }
+
+        #descInput {
+            flex: 2 1 260px;
+        }
+
+        .add-form button {
+            background: #205b94;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+        }
+
+        .add-form button:hover:enabled {
+            background: #3674b9;
+        }
+
+        .add-form button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        /* 顶部状态条：刷新失败时保留旧列表，只在这里提示 */
+        .status {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .status[hidden] {
+            display: none;
+        }
+
+        .status.warn {
+            background: #fff8e1;
+            border-left: 3px solid #e0a800;
+            color: #7a5b00;
+        }
+
+        .status.error {
+            background: #fdf2f2;
+            border-left: 3px solid #d9534f;
+            color: #b52b27;
+        }
+
+        .status.ok {
+            background: #eaf7ee;
+            border-left: 3px solid #3c9d5c;
+            color: #2c6e42;
+        }
+
+        .status button {
+            background: #fff;
+            border: 1px solid currentColor;
+            color: inherit;
+            border-radius: 4px;
+            padding: 3px 10px;
+        }
+
+        .list-box .item {
+            background: #f4f6f8;
+            border-left: 3px solid #5494d8;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .list-box .item h3 {
+            color: #205b94;
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+
+        .list-box .item p {
+            color: #555;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .list-box .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .list-box a {
+            color: #205b94;
+        }
+
+        .list-box .del-btn {
+            border: 1px solid #d9534f;
+            color: #d9534f;
+            background: #fff;
+            border-radius: 4px;
+        }
+
+        .list-box .del-btn:hover:enabled {
+            background: #d9534f;
+            color: #fff;
+        }
+
+        .list-box .del-btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .list-box .loading,
+        .list-box .empty {
+            background: #f4f6f8;
+            border-radius: 4px;
+            padding: 14px;
+            color: #777;
+        }
+
+        .list-box .error {
+            background: #fdf2f2;
+            border-left: 3px solid #d9534f;
+            border-radius: 4px;
+            padding: 14px;
+            color: #b52b27;
+        }
+
+        #retryBtn {
+            margin-top: 10px;
+        }
+
+        @media (max-width: 375px) {
+            .add-form {
+                flex-direction: column;
+            }
+
+            .add-form button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="page-list">
+<header>
+    <h2>项目列表</h2>
+</header>
+<nav>
+    <a href="index.html">首页</a>
+    <a href="detail.html">项目详情</a>
+    <a href="list.html">项目列表</a>
+</nav>
+<main>
+    <section>
+        <h3>全部项目</h3>
+        <p class="hint">
+            查询 <code>GET /api/list</code>，新增 <code>POST /api/add</code>，删除 <code>DELETE /api/del</code>。
+            联调前请先在 <code>node</code> 目录执行 <code>node server.js</code>。
+        </p>
+
+        <form class="add-form" id="addForm" autocomplete="off">
+            <input type="text" id="titleInput" placeholder="项目名称（必填，最多 80 字）" maxlength="80">
+            <input type="text" id="descInput" placeholder="项目描述（选填，最多 500 字）" maxlength="500">
+            <button type="submit" id="addBtn">新增项目</button>
+        </form>
+
+        <div class="status" id="statusBar" role="status" hidden></div>
+        <div class="list-box" id="listBox" aria-live="polite"></div>
+    </section>
+</main>
+<footer>
+    <p>© 2026 前端实训作业</p>
+</footer>
+<script>
+    /* ===== 项目列表页：接口联调 ===== */
+
+    // 与 server.js 里的 port 保持一致；换端口只改这一行
+    const API_BASE = 'http://127.0.0.1:3000';
+    const listUrl = API_BASE + '/api/list';
+    const addUrl = API_BASE + '/api/add';
+    const delUrl = API_BASE + '/api/del';
+
+    const wrap = document.getElementById('listBox');
+    const statusBar = document.getElementById('statusBar');
+    const addForm = document.getElementById('addForm');
+    const titleInput = document.getElementById('titleInput');
+    const descInput = document.getElementById('descInput');
+    const addBtn = document.getElementById('addBtn');
+
+    // 上一次成功拿到的列表：接口临时失败时继续显示它，列表就不会“消失”
+    let lastList = null;
+
+    /* 文本转义后再拼进 HTML，避免 title / desc 里的尖括号被当成标签执行 */
+    function escapeHTML(value) {
+        return String(value === undefined || value === null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    /* 顶部状态条：warn 黄色 / error 红色 / ok 绿色，可带一个重试按钮 */
+    function showStatus(text, type, withRetry) {
+        statusBar.className = 'status ' + (type || 'warn');
+        statusBar.innerHTML = '<span>' + escapeHTML(text) + '</span>'
+            + (withRetry ? '<button type="button" id="statusRetryBtn">重试</button>' : '');
+        statusBar.hidden = false;
+
+        const retryBtn = document.getElementById('statusRetryBtn');
+        if (retryBtn) retryBtn.addEventListener('click', renderList);
+    }
+
+    function hideStatus() {
+        statusBar.hidden = true;
+        statusBar.innerHTML = '';
+    }
+
+    /* 统一处理响应：网络不通、HTTP 状态异常、业务 code 不是 200，都抛出可读的错误 */
+    async function request(url, options) {
+        let response;
+        try {
+            response = await fetch(url, options);
+        } catch (error) {
+            throw new Error('无法连接接口服务，请先启动 node server.js');
+        }
+        if (!response.ok) {
+            throw new Error('接口响应异常：HTTP ' + response.status);
+        }
+        const result = await response.json();
+        if (!result || result.code !== 200) {
+            throw new Error((result && result.msg) || '接口返回格式不正确');
+        }
+        return result.data;
+    }
+
+    /* 把一组项目渲染到列表区 */
+    function renderItems(arr) {
+        if (arr.length === 0) {
+            wrap.innerHTML = '<div class="empty">暂无数据，用上面的输入框新增一个项目吧</div>';
+            return;
+        }
+
+        let html = '';
+        arr.forEach(function (item) {
+            html += '<div class="item">'
+                + '<h3>' + escapeHTML(item.title) + '</h3>'
+                + '<p>' + escapeHTML(item.desc) + '</p>'
+                + '<div class="item-actions">'
+                + '<a href="detail.html">查看详情</a>'
+                + '<button class="del-btn" type="button" data-id="' + escapeHTML(item.id) + '">删除</button>'
+                + '</div>'
+                + '</div>';
+        });
+        wrap.innerHTML = html;
+    }
+
+    /* 拉取并渲染列表：失败时如果已经有旧数据，就保留旧数据 + 黄色提示，不清空列表 */
+    async function renderList() {
+        if (lastList === null) {
+            wrap.innerHTML = '<div class="loading">⏳ 加载中...</div>';
+        }
+
+        try {
+            const list = await request(listUrl);
+            const arr = Array.isArray(list) ? list : [];
+            lastList = arr;
+            renderItems(arr);
+            hideStatus();
+            return true;
+        } catch (error) {
+            if (lastList !== null) {
+                showStatus('刷新失败：' + error.message + '（下面显示的是上一次成功加载的数据）', 'warn', true);
+            } else {
+                wrap.innerHTML = '<div class="error">'
+                    + '❌ 请求失败：' + escapeHTML(error.message) + '<br>'
+                    + '<button id="retryBtn" type="button">🔄 重试</button>'
+                    + '</div>';
+                document.getElementById('retryBtn').addEventListener('click', renderList);
+            }
+            return false;
+        }
+    }
+
+    /* 新增项目：POST /api/add，title 必填，desc 选填 */
+    async function addItem() {
+        const title = titleInput.value.trim();
+        const desc = descInput.value.trim();
+
+        if (!title) {
+            showStatus('项目名称不能为空', 'warn');
+            titleInput.focus();
+            return;
+        }
+
+        addBtn.disabled = true;
+        try {
+            await request(addUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: title, desc: desc })
+            });
+            titleInput.value = '';
+            descInput.value = '';
+            if (await renderList()) {
+                showStatus('已新增「' + title + '」', 'ok');
+            } else {
+                showStatus('已新增，但列表刷新失败', 'warn', true);
+            }
+        } catch (error) {
+            showStatus('新增失败：' + error.message, 'error', true);
+        } finally {
+            addBtn.disabled = false;
+        }
+    }
+
+    /* 删除：server.js 的 DELETE /api/del 从请求体里读 id，所以用 body 传，不能拼在地址栏 */
+    async function deleteItem(id, button) {
+        if (!window.confirm('确定删除这个项目吗？')) return;
+
+        button.disabled = true;
+        try {
+            await request(delUrl, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: Number(id) })
+            });
+            if (await renderList()) {
+                showStatus('已删除该项目', 'ok');
+            } else {
+                showStatus('已删除，但列表刷新失败', 'warn', true);
+            }
+        } catch (error) {
+            showStatus('删除失败：' + error.message, 'error', true);
+            button.disabled = false;
+        }
+    }
+
+    /* 事件委托：列表重新渲染后按钮是新的，但监听挂在 wrap 上，所以只绑一次就够了 */
+    function bindDel() {
+        wrap.addEventListener('click', function (event) {
+            const button = event.target.closest('.del-btn');
+            if (!button || !wrap.contains(button)) return;
+            deleteItem(button.dataset.id, button);
+        });
+    }
+
+    addForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        addItem();
+    });
+
+    bindDel();
+    renderList();
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端实训个人主页</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page-home">
+<header>
+    <h2>前端实训个人主页</h2>
+</header>
+<nav>
+    <a href="index.html">首页</a>
+    <a href="detail.html">项目详情</a>
+</nav>
+<main>
+    <div class="tab-buttons">
+        <button class="tab-btn active" type="button" data-id="intro">自我介绍</button>
+        <button class="tab-btn" type="button" data-id="skill">技能栈</button>
+        <button class="tab-btn" type="button" data-id="project">第一阶段项目</button>
+    </div>
+
+    <section class="show" id="intro">
+        <h3>自我介绍</h3>
+        <p>计算机专业学生，正在学习前端开发，掌握 HTML、CSS、JavaScript 基础，练习静态页面开发与简单数据交互。</p>
+    </section>
+
+    <section id="skill">
+        <h3>技能栈</h3>
+        <ul class="skill-list">
+            <li>HTML5 语义化标签</li>
+            <li>CSS3 响应式布局</li>
+            <li>原生 JavaScript DOM 操作</li>
+            <li>Fetch 数据请求</li>
+        </ul>
+    </section>
+
+    <section id="project">
+        <h3>第一阶段项目：任务清单</h3>
+        <p>功能：任务新增、回车添加、勾选切换完成状态。</p>
+        <p>下面的列表由 <code>fetch("data/projects.json")</code> 动态加载，打开 F12 → Network → Fetch/XHR 可以看到这条请求。</p>
+        <ul class="project-list" id="project-list" aria-live="polite">
+            <li class="loading">项目数据加载中…</li>
+        </ul>
+        <p>点击上方导航【项目详情】进入详情页。</p>
+    </section>
+</main>
+<footer>
+    <p>© 2026 前端实训作业</p>
+</footer>
+<script src="js/main.js"></script>
+</body>
+</html>
